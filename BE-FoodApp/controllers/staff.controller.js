@@ -44,7 +44,7 @@ exports.addData = async (req, res) => {
             return res.status(400).json({ status: 0, message: 'Số điện thoại phải là số.' });
         } else if (!phoneNumberRegex.test(phone)) {
             return res.status(400).json({ status: 0, message: 'Số điện thoại sai định dạng.' });
-        }else if (!emailRegex.test(email)) {
+        } else if (!emailRegex.test(email)) {
             return res.status(400).json({ status: 0, message: 'Email sai định dạng.' });
         }
 
@@ -150,6 +150,59 @@ exports.deleteData = async (req, res) => {
         }
 
         res.status(204).json({ message: 'Xóa thông tin người dùng và nhân viên thành công', data: { user: resultUser, staff: resultStaff } });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Lỗi máy chủ nội bộ' });
+    }
+}
+
+exports.search = async (req, res) => {
+    try {
+        const { phone } = req.body;
+
+        if (!phone) {
+            return res.status(400).json({ status: 0, message: 'Vui lòng cung cấp số điện thoại.' });
+        }
+
+        // Sử dụng biểu thức chính qui để kiểm tra xem số điện thoại chỉ chứa số
+        const phoneNumberRegex = /^[0-9]+$/;
+
+        if (!phoneNumberRegex.test(phone)) {
+            return res.status(400).json({ status: 0, message: 'Số điện thoại chỉ được chứa số.' });
+        }
+
+        // Sử dụng biểu thức chính qui ($regex) để tìm kiếm mờ số điện thoại từ bảng User
+        const userResults = await mdUser.find({ phone: { $regex: phone, $options: 'i' } });
+        const listStaff = await mdStaff.find();
+
+        if (!userResults || userResults.length === 0) {
+            return res.status(404).json({ status: 0, message: 'Không tìm thấy người dùng với số điện thoại này.' });
+        }
+
+        const dataJson = userResults.map(user => {
+            const dataStaff = listStaff.filter(staff => staff.idUser.equals(user._id));
+            return {
+                data: {
+
+                    name: user.name,
+                    phone: user.phone,
+                    password: user.password,
+                    date: user.date,
+                    sex: user.sex,
+                    image: user.image,
+                    email: user.email,
+                    address: user.address,
+                    accType: user.accType,
+                    staff: dataStaff
+                }
+            }
+        })
+
+        if (dataJson.length > 0) {
+            res.status(200).json({ status: 1, message: 'Tìm thấy người dùng và nhân viên.', data: dataJson });
+        } else {
+            res.status(404).json({ status: 0, message: 'Không tìm thấy kết quả phù hợp.' });
+        }
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Lỗi máy chủ nội bộ' });
