@@ -1,0 +1,157 @@
+const mdUser = require('../model/user.model');
+const mdStaff = require('../model/staff.model');
+
+exports.getData = async (req, res) => {
+    let listUser = await mdUser.find();
+    let listStaff = await mdStaff.find();
+
+    const dataJson = listUser.map(user => {
+        const dataStaff = listStaff.filter(staff => staff.idUser.equals(user._id));
+        return {
+            data: {
+
+                name: user.name,
+                phone: user.phone,
+                password: user.password,
+                date: user.date,
+                sex: user.sex,
+                image: user.image,
+                email: user.email,
+                address: user.address,
+                accType: user.accType,
+                staff: dataStaff
+            }
+        }
+    })
+
+    if (dataJson.length > 0) {
+        return res.status(200).json({ dataJson, check: 'có dữ liệu' });
+    }
+    else {
+        return res.status(404).json({ check: 'không có dữ liệu' });
+    }
+}
+
+exports.addData = async (req, res) => {
+    try {
+        const { name, phone, password, date, sex, image, email, address } = req.body;
+        const phoneNumberRegex = /^[0-9]{10}$/;
+        const emailRegex = /^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z]{2,}$/;
+
+        if (!name || !phone || !password || !date || !sex || !image || !email || !address) {
+            return res.status(400).json({ status: 0, message: 'Dữ liệu không hợp lệ' });
+        } else if (isNaN(phone)) {
+            return res.status(400).json({ status: 0, message: 'Số điện thoại phải là số.' });
+        } else if (!phoneNumberRegex.test(phone)) {
+            return res.status(400).json({ status: 0, message: 'Số điện thoại sai định dạng.' });
+        }else if (!emailRegex.test(email)) {
+            return res.status(400).json({ status: 0, message: 'Email sai định dạng.' });
+        }
+
+        const validatePhone = await mdUser.findOne({ phone });
+        if (validatePhone) {
+            return res.status(400).json({ status: 1, message: 'Mỗi số điện thoại chỉ được đăng ký 1 lần' })
+        }
+
+        // Tạo một người dùng với thông tin chung và loại tài khoản (accType) là Staff
+        const newUser = new mdUser({
+            name,
+            phone,
+            password,
+            date,
+            sex,
+            image,
+            email,
+            address,
+            accType: 'Staff',
+        });
+        // Tạo một nhân viên với vai trò là admin
+        const newStaff = new mdStaff({
+            role: 'admin',
+            idUser: newUser._id
+        });
+        await newStaff.save();
+
+        // Gán ID người dùng cho Staff
+
+        const result = await newUser.save();
+
+        res.status(201).json({ message: 'Staff created successfully', data: result });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Lỗi máy chủ nội bộ' });
+    }
+};
+
+exports.updateData = async (req, res) => {
+    try {
+
+        const { _id, name, phone, password, date, sex, image, email, address, role } = req.body;
+        const phoneNumberRegex = /^[0-9]{10}$/;
+        const emailRegex = /^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z]{2,}$/;
+
+
+        if (!name || !phone || !password || !date || !sex || !image || !email || !address || !role) {
+            return res.status(400).json({ status: 0, message: 'Dữ liệu không hợp lệ.' });
+        } else if (isNaN(phone)) {
+            return res.status(400).json({ status: 0, message: 'Số điện thoại phải là số.' });
+        } else if (!phoneNumberRegex.test(phone)) {
+            return res.status(400).json({ status: 0, message: 'Số điện thoại sai định dạng.' });
+        } else if (!emailRegex.test(email)) {
+            return res.status(400).json({ status: 0, message: 'Email sai định dạng.' });
+        }
+
+        const userUpdateData = {
+            name,
+            phone,
+            password,
+            date,
+            sex,
+            image,
+            email,
+            address,
+        };
+
+
+        const staffUpdateData = {
+            role,
+        };
+
+        const userUpdateResult = await mdUser.findOneAndUpdate({ _id: _id }, userUpdateData, { new: true });
+
+        if (!userUpdateResult) {
+            return res.status(404).json({ status: 0, message: 'Không tìm thấy người dùng' });
+        }
+
+        const staffUpdateResult = await mdStaff.findOneAndUpdate({ idUser: _id }, staffUpdateData, { new: true });
+
+        if (!staffUpdateResult) {
+            return res.status(404).json({ status: 0, message: 'Không tìm thấy nhân viên' });
+        }
+
+        res.status(200).json({ message: 'Cập nhật thông tin người dùng và nhân viên thành công', data: { user: userUpdateResult, staff: staffUpdateResult } });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Lỗi máy chủ nội bộ' });
+    }
+}
+
+exports.deleteData = async (req, res) => {
+    try {
+        const { _id } = req.body;
+
+        const resultUser = await mdUser.findByIdAndDelete(_id);
+        if (!resultUser) {
+            return res.status(404).json({ error: "Danh mục không tồn tại" });
+        }
+        const resultStaff = await mdStaff.findOneAndDelete({ idUser: _id });
+        if (!resultStaff) {
+            return res.status(404).json({ error: "Danh mục không tồn tại" });
+        }
+
+        res.status(204).json({ message: 'Xóa thông tin người dùng và nhân viên thành công', data: { user: resultUser, staff: resultStaff } });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Lỗi máy chủ nội bộ' });
+    }
+}
