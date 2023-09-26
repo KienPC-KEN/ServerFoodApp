@@ -4,8 +4,8 @@ const mongoose = require('mongoose');
 
 const categoryRoute = require('./router/category.router');
 const productRouter = require('./router/product.router');
-      
 const staffRouter = require('./router/staff.router');
+const customerRouter = require('./router/customer.router');
 
 const app = express();
 
@@ -27,8 +27,8 @@ app.use(bodyParser.json());
 
 app.use('/api/category', categoryRoute);
 app.use('/api/product', productRouter);
-app.use('/api', staffRouter)
-
+app.use('/api/staff', staffRouter)
+app.use('/api/customer', customerRouter)
 
 app.get('/', (req, res) => {
       res.redirect('/api');
