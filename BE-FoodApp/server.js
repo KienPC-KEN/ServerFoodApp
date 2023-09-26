@@ -27,7 +27,7 @@ app.use(bodyParser.json());
 
 app.use('/api/category', categoryRoute);
 app.use('/api/product', productRouter);
-app.use('/api', staffRouter)
+app.use('/api/staff', staffRouter)
 
 
 app.get('/', (req, res) => {
