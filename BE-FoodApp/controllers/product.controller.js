@@ -4,7 +4,7 @@ const product = require('../model/product.model');
 const getProduct = async (req, res) => {
       try {
             const listProduct = await product.find({}).populate('idCategory', 'idDiscount');
-            if (listProduct == length) {
+            if (listProduct.length == 0) {
                   res.status(404).json('Data is empty');
             } else {
                   res.status(200).json(listProduct);
@@ -56,9 +56,19 @@ const deleteProduct = async (req, res) => {
       }
 };
 
+const search = async (req, res) => {
+      try {
+            const name_search = req.query.q;
+            
+      } catch (error) {
+            res.status(500).json(error);
+      }
+};
+
 module.exports = {
       getProduct,
       createProduct,
       updateProduct,
-      deleteProduct
+      deleteProduct,
+      search,
 };
