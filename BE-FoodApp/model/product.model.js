@@ -7,7 +7,7 @@ const ProductSchema = new mongoose.Schema({
     price: { type: Number, required: true },
     description: { type: Number, required: true },
     idCategory: { type: mongoose.Schema.Types.ObjectId, ref: 'category', required: true },
-    idDiscount: { type: mongoose.Schema.Types.ObjectId, ref: 'discuont', required: true },
+    idDiscount: { type: mongoose.Schema.Types.ObjectId, ref: 'discount' },
 
 })
 
