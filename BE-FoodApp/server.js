@@ -6,7 +6,7 @@ const categoryRoute = require('./router/category.router');
 const productRouter = require('./router/product.router');
 const staffRouter = require('./router/staff.router');
 const customerRouter = require('./router/customer.router');
-
+const orderItemRouter = require('./router/orderitem.router');
 const app = express();
 
 const uri = 'mongodb+srv://phungchikien196:Qa4168ciXnRnjV9G@apppolylib.5gjczzc.mongodb.net/FoodApp';
@@ -29,7 +29,7 @@ app.use('/api/category', categoryRoute);
 app.use('/api/product', productRouter);
 app.use('/api/staff', staffRouter)
 app.use('/api/customer', customerRouter)
-
+app.use('/api/orderitem', orderItemRouter);
 
 app.get('/', (req, res) => {
       res.redirect('/api');
