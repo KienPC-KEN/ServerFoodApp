@@ -30,6 +30,7 @@ app.use('/api/product', productRouter);
 app.use('/api/staff', staffRouter)
 app.use('/api/customer', customerRouter)
 
+
 app.get('/', (req, res) => {
       res.redirect('/api');
 });
