@@ -1,17 +1,16 @@
 const mdUser = require('../model/user.model');
-const mdStaff = require('../model/staff.model');
+const mdCustomer = require('../model/customer.model');
 
 exports.getData = async (req, res) => {
     let listUser = await mdUser.find();
-    let listStaff = await mdStaff.find();
+    let listCustomer = await mdCustomer.find();
 
-    listUser = listUser.filter(user => user.accType === "Staff");
+    listUser = listUser.filter(user => user.accType === "Customer");
 
     const dataJson = listUser.map(user => {
-        const dataStaff = listStaff.filter(staff => staff.idUser.equals(user._id));
+        const dataCustomer = listCustomer.filter(customer => customer.idUser.equals(user._id));
         return {
             data: {
-
                 name: user.name,
                 phone: user.phone,
                 password: user.password,
@@ -21,11 +20,11 @@ exports.getData = async (req, res) => {
                 email: user.email,
                 address: user.address,
                 accType: user.accType,
-                staff: dataStaff
+                Customer: dataCustomer
             }
         }
     })
-
+    console.log(dataJson);
     if (dataJson.length > 0) {
         return res.status(200).json({ dataJson, check: 'có dữ liệu' });
     }
@@ -55,7 +54,7 @@ exports.addData = async (req, res) => {
             return res.status(400).json({ status: 1, message: 'Mỗi số điện thoại chỉ được đăng ký 1 lần' })
         }
 
-        // Tạo một người dùng với thông tin chung và loại tài khoản (accType) là Staff
+        // Tạo một người dùng với thông tin chung và loại tài khoản (accType) là Customer
         const newUser = new mdUser({
             name,
             phone,
@@ -65,20 +64,19 @@ exports.addData = async (req, res) => {
             image,
             email,
             address,
-            accType: 'Staff',
+            accType: 'Customer',
         });
         // Tạo một nhân viên với vai trò là admin
-        const newStaff = new mdStaff({
-            role: 'admin',
+        const newCustomer = new mdCustomer({
             idUser: newUser._id
         });
-        await newStaff.save();
+        await newCustomer.save();
 
-        // Gán ID người dùng cho Staff
+        // Gán ID người dùng cho Customer
 
         const result = await newUser.save();
 
-        res.status(201).json({ message: 'Staff created successfully', data: result });
+        res.status(201).json({ message: 'Customer created successfully', data: result });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Lỗi máy chủ nội bộ' });
@@ -88,12 +86,12 @@ exports.addData = async (req, res) => {
 exports.updateData = async (req, res) => {
     try {
 
-        const { _id, name, phone, password, date, sex, image, email, address, role } = req.body;
+        const { _id, name, phone, password, date, sex, image, email, address } = req.body;
         const phoneNumberRegex = /^[0-9]{10}$/;
         const emailRegex = /^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z]{2,}$/;
 
 
-        if (!name || !phone || !password || !date || !sex || !image || !email || !address || !role) {
+        if (!name || !phone || !password || !date || !sex || !image || !email || !address) {
             return res.status(400).json({ status: 0, message: 'Dữ liệu không hợp lệ.' });
         } else if (isNaN(phone)) {
             return res.status(400).json({ status: 0, message: 'Số điện thoại phải là số.' });
@@ -114,24 +112,13 @@ exports.updateData = async (req, res) => {
             address,
         };
 
-
-        const staffUpdateData = {
-            role,
-        };
-
         const userUpdateResult = await mdUser.findOneAndUpdate({ _id: _id }, userUpdateData, { new: true });
 
         if (!userUpdateResult) {
             return res.status(404).json({ status: 0, message: 'Không tìm thấy người dùng' });
         }
 
-        const staffUpdateResult = await mdStaff.findOneAndUpdate({ idUser: _id }, staffUpdateData, { new: true });
-
-        if (!staffUpdateResult) {
-            return res.status(404).json({ status: 0, message: 'Không tìm thấy nhân viên' });
-        }
-
-        res.status(200).json({ message: 'Cập nhật thông tin người dùng và nhân viên thành công', data: { user: userUpdateResult, staff: staffUpdateResult } });
+        res.status(200).json({ message: 'Cập nhật thông tin người dùng thành công', data: userUpdateResult });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Lỗi máy chủ nội bộ' });
@@ -146,12 +133,12 @@ exports.deleteData = async (req, res) => {
         if (!resultUser) {
             return res.status(404).json({ error: "Danh mục không tồn tại" });
         }
-        const resultStaff = await mdStaff.findOneAndDelete({ idUser: _id });
-        if (!resultStaff) {
+        const resultCustomer = await mdCustomer.findOneAndDelete({ idUser: _id });
+        if (!resultCustomer) {
             return res.status(404).json({ error: "Danh mục không tồn tại" });
         }
 
-        res.status(204).json({ message: 'Xóa thông tin người dùng và nhân viên thành công', data: { user: resultUser, staff: resultStaff } });
+        res.status(204).json({ message: 'Xóa thông tin người dùng và nhân viên thành công', data: { user: resultUser, Customer: resultCustomer } });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Lỗi máy chủ nội bộ' });
@@ -175,16 +162,16 @@ exports.search = async (req, res) => {
 
         // Sử dụng biểu thức chính qui ($regex) để tìm kiếm mờ số điện thoại từ bảng User
         const userResults = await mdUser.find({ phone: { $regex: phone, $options: 'i' } });
-        const listStaff = await mdStaff.find();
+        const listCustomer = await mdCustomer.find();
 
         if (!userResults || userResults.length === 0) {
             return res.status(404).json({ status: 0, message: 'Không tìm thấy người dùng với số điện thoại này.' });
         }
 
-        listUser = userResults.filter(user => user.accType === "Staff");
+        let listUser = userResults.filter(user => user.accType === "Customer");
 
         const dataJson = listUser.map(user => {
-            const dataStaff = listStaff.filter(staff => staff.idUser.equals(user._id));
+            const dataCustomer = listCustomer.filter(Customer => Customer.idUser.equals(user._id));
             return {
                 data: {
 
@@ -197,7 +184,7 @@ exports.search = async (req, res) => {
                     email: user.email,
                     address: user.address,
                     accType: user.accType,
-                    staff: dataStaff
+                    Customer: dataCustomer
                 }
             }
         })
