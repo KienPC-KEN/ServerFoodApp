@@ -63,7 +63,15 @@ const search = async (req, res) => {
                   const getData = await product.find({}).populate('idCategory', 'idDiscount');
                   res.status(200).json(getData);
             } else {
-                  
+                  const getData = await product.find({}).populate('idCategory', 'idDiscount');
+                  if (getData.length == 0) {
+                        res.status(404).json('Data is empty');
+                  } else {
+                        const result = getData.filter((data) => {
+                              return data.name.toLowerCase().indexOf(name_search.toLowerCase()) !== -1;
+                        });
+                        res.status(200).json(result);
+                  }
             }
       } catch (error) {
             res.status(500).json(error);
