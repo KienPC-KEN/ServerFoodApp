@@ -24,7 +24,6 @@ exports.getData = async (req, res) => {
             }
         }
     })
-    console.log(dataJson);
     if (dataJson.length > 0) {
         return res.status(200).json({ dataJson, check: 'có dữ liệu' });
     }
@@ -85,8 +84,8 @@ exports.addData = async (req, res) => {
 
 exports.updateData = async (req, res) => {
     try {
-
-        const { _id, name, phone, password, date, sex, image, email, address } = req.body;
+        const { _id } = req.params;
+        const { name, phone, password, date, sex, image, email, address } = req.body;
         const phoneNumberRegex = /^[0-9]{10}$/;
         const emailRegex = /^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z]{2,}$/;
 
@@ -127,7 +126,7 @@ exports.updateData = async (req, res) => {
 
 exports.deleteData = async (req, res) => {
     try {
-        const { _id } = req.body;
+        const { _id } = req.params;
 
         const resultUser = await mdUser.findByIdAndDelete(_id);
         if (!resultUser) {

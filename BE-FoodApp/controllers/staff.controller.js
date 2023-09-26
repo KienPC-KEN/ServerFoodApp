@@ -87,8 +87,8 @@ exports.addData = async (req, res) => {
 
 exports.updateData = async (req, res) => {
     try {
-
-        const { _id, name, phone, password, date, sex, image, email, address, role } = req.body;
+        const { _id } = req.params
+        const { name, phone, password, date, sex, image, email, address, role } = req.body;
         const phoneNumberRegex = /^[0-9]{10}$/;
         const emailRegex = /^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z]{2,}$/;
 
@@ -140,7 +140,7 @@ exports.updateData = async (req, res) => {
 
 exports.deleteData = async (req, res) => {
     try {
-        const { _id } = req.body;
+        const { _id } = req.params;
 
         const resultUser = await mdUser.findByIdAndDelete(_id);
         if (!resultUser) {
@@ -151,7 +151,7 @@ exports.deleteData = async (req, res) => {
             return res.status(404).json({ error: "Danh mục không tồn tại" });
         }
 
-        res.status(204).json({ message: 'Xóa thông tin người dùng và nhân viên thành công', data: { user: resultUser, staff: resultStaff } });
+        res.status(200).json({ message: 'Xóa thông tin người dùng và nhân viên thành công', data: { user: resultUser, staff: resultStaff } });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Lỗi máy chủ nội bộ' });
