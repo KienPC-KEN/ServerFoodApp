@@ -1,7 +1,7 @@
 const product = require('../model/product.model');
 
 //[GET]
-const getData = async (req, res) => {
+const getProduct = async (req, res) => {
       try {
             const listProduct = await product.find({}).populate('category', 'discount');
             if (listProduct.length == 0) {
@@ -14,6 +14,10 @@ const getData = async (req, res) => {
       }
 };
 
+//[POST]
+const addProduct = async (req, res) => {};
+
 module.exports = {
-      getData,
+      getProduct,
+      addProduct,
 };
