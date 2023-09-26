@@ -59,7 +59,12 @@ const deleteProduct = async (req, res) => {
 const search = async (req, res) => {
       try {
             const name_search = req.query.q;
-            
+            if (name_search == undefined) {
+                  const getData = await product.find({}).populate('idCategory', 'idDiscount');
+                  res.status(200).json(getData);
+            } else {
+                  
+            }
       } catch (error) {
             res.status(500).json(error);
       }
