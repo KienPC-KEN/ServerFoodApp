@@ -15,9 +15,20 @@ const getProduct = async (req, res) => {
 };
 
 //[POST]
-const addProduct = async (req, res) => {};
+const createProduct = async (req, res) => {
+      try {
+        if(!req.body) {
+            res.status(404).json('Dữ liệu không được để trống');
+        } else {
+            const newProduct = await product({...req.body}).save();
+            res.status(202).json(newProduct);
+        }
+      } catch (error) {
+            res.status(500).json(error);
+      }
+};
 
 module.exports = {
       getProduct,
-      addProduct,
+      createProduct,
 };
