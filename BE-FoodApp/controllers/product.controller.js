@@ -3,7 +3,7 @@ const product = require('../model/product.model');
 //[GET]
 const getProduct = async (req, res) => {
       try {
-            const listProduct = await product.find({}).populate('category', 'discount');
+            const listProduct = await product.find({}).populate('idCategory', 'idDiscount');
             if (listProduct.length == 0) {
                   res.status(404).json('Data is empty');
             } else {
