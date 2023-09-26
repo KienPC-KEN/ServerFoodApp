@@ -26,7 +26,7 @@ app.use('/image', express.static('image'));
 app.use(bodyParser.json());
 
 app.use('/api/category', categoryRoute);
-app.use('/api', productRouter);
+app.use('/api/product', productRouter);
 app.use('/api', staffRouter)
 
 
