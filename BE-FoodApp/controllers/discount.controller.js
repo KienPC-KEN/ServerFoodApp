@@ -17,7 +17,15 @@ const getDiscount = async (req, res) => {
 //[POST]
 const createDiscount = async (req, res) => {
       try {
-      } catch (error) {}
+            if(!req.body) {
+                  res.status(404).json('Dữ liệu không được để trống');
+            } else {
+                  const newDiscount = await discount({ ...req.body}).save();
+                  res.status(200).json(newDiscount);
+            }
+      } catch (error) {
+            res.status(500).json(error);
+      }
 };
 
 //[PUT]
