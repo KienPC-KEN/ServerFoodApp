@@ -20,4 +20,6 @@ const updateDiscount = async (req, res) => {
 
 module.exports = {
       getDiscount,
+      createDiscount,
+      updateDiscount
 };
