@@ -37,7 +37,24 @@ const createDiscount = async (req, res) => {
 //[PUT]
 const updateDiscount = async (req, res) => {
       try {
-      } catch (error) {}
+            if (!req.body) {
+                  res.status(404).json('Dữ liệu không được để trống');
+            } else {
+                  if (moment(req.body.dateEnd).isValid()) {
+                        const dateEnd = moment(req.body.dateEnd).format('L');
+                        const newDiscount = await discount.findByIdAndUpdate(
+                              { _id: req.params.id },
+                              { ...req.body, dateEnd },
+                              { new: true, upsert: true }
+                        );
+                        res.status(200).json(newDiscount);
+                  } else {
+                        res.status(404).json('Date không hợp lệ');
+                  }
+            }
+      } catch (error) {
+            res.status(500).json(error);
+      }
 };
 
 //[DEL]
