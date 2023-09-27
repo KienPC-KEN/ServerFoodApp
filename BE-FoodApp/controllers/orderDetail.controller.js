@@ -31,7 +31,16 @@ const createOrderDetail = async (req, res) => {
 //[PUT]
 const updateOrderDetail = async (req, res) => {
       try {
-            
+            if (!req.body) {
+                  res.status(404).json('Dữ liệu không được để trống');
+            } else {
+                  const newOrderDetail = await orderDetail.findByIdAndUpdate(
+                        { _id: req.params.id },
+                        { ...req.body },
+                        { new: true, upsert: true }
+                  );
+                  res.status(200).json(newOrderDetail);
+            }
       } catch (error) {
             res.status(500).json(error);
       }
