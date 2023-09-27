@@ -49,7 +49,8 @@ const updateOrderDetail = async (req, res) => {
 //[Delete]
 const deleteOrderDetail = async (req, res) => {
       try {
-            
+            await orderDetail.deleteOne({ _id: req.params.id });
+            res.status(200).json('Delete completed!');
       } catch (error) {
             res.status(500).json(error);
       }
