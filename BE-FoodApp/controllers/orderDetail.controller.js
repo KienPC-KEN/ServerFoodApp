@@ -18,7 +18,12 @@ const getData = async (req, res) => {
 //[POST]
 const createOrderDetail = async (req, res) => {
       try {
-            
+            if (!req.body) {
+                  res.status(404).json('Dữ liệu không được để trống');
+            } else {
+                  const newOrderDetail = await orderDetail({ ...req.body }).save();
+                  res.status(200).json(newOrderDetail);
+            }
       } catch (error) {
             res.status(500).json(error);
       }
