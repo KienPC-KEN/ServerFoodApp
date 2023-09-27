@@ -12,6 +12,12 @@ const createDiscount = async (req, res) => {
       } catch (error) {}
 };
 
+//[PUT]
+const updateDiscount = async (req, res) => {
+      try {
+      } catch (error) {}
+};
+
 module.exports = {
       getDiscount,
 };
