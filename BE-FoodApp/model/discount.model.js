@@ -6,7 +6,6 @@ const discount = new mongoose.Schema({
     discountPerson: { type: Number, required: true },
     dateStart: { type: Date("mm-dd-yyyy"), default: Date.now()},
     dateEnd: { type: Date("mm-dd-yyyy"), required: true},
-
 });
 
 module.exports = mongoose.model('discount', discount);
