@@ -3,7 +3,15 @@ const discount = require('../model/discount.model');
 //[GET]
 const getDiscount = async (req, res) => {
       try {
-      } catch (error) {}
+            const data = await discount.find({});
+            if (data.length == 0) {
+                  res.status(404).json('Data is empty');
+            } else {
+                  res.status(200).json(data);
+            }
+      } catch (error) {
+            res.status(500).json(error);
+      }
 };
 
 //[POST]
