@@ -32,10 +32,19 @@ const updateOrderDetail = async (req, res) => {
       }
 };
 
+//[Delete]
+const deleteOrderDetail = async (req, res) => {
+      try {
+            
+      } catch (error) {
+            res.status(500).json(error);
+      }
+};
 
 
 module.exports = {
       getData,
       createOrderDetail,
       updateOrderDetail,
+      deleteOrderDetail
 };
