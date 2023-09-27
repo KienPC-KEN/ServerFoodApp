@@ -14,6 +14,19 @@ const getData = async (req, res) => {
       }
 };
 
+
+//[POST]
+const createOrderDetail = async (req, res) => {
+      try {
+            
+      } catch (error) {
+            res.status(500).json(error);
+      }
+};
+
+
+
 module.exports = {
-      getData
+      getData,
+      createOrderDetail,
 };
