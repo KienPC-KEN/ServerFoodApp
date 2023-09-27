@@ -60,7 +60,11 @@ const updateDiscount = async (req, res) => {
 //[DEL]
 const deleteDiscount = async (req, res) => {
       try {
-      } catch (error) {}
+            await discount.deleteOne({ _id: req.params.id });
+            res.status(200).json('Delete completed!');
+      } catch (error) {
+            res.status(500).json(error);
+      }
 };
 
 module.exports = {
