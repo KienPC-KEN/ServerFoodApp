@@ -5,5 +5,6 @@ const discountController = require('../controllers/discount.controller');
 
 router.get('/', discountController.getDiscount);
 router.post('/create', discountController.createDiscount);
+router.put('/update/:id', discountController.updateDiscount);
 
 module.exports = router;
