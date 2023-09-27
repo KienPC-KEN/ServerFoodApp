@@ -3,7 +3,14 @@ const orderDetail = require('../model/orderDetail.model');
 //[GET]
 const getData = async (req, res) => {
       try {
-            const data = await orderDetail.find({}).populate('idOrderItem');
+            const data = await orderDetail.find({}).populate({
+                  path: 'idOrderItem',
+                  model: 'orderItem',
+                  populate: [
+                        { path: 'idProduct', model: 'product' },
+                        { path: 'idCustomer', model: 'customer' },
+                  ],
+            });
             if (data.length == 0) {
                   res.status(404).json('Data is empty');
             } else {
@@ -13,7 +20,6 @@ const getData = async (req, res) => {
             res.status(500).json(error);
       }
 };
-
 
 //[POST]
 const createOrderDetail = async (req, res) => {
@@ -56,10 +62,9 @@ const deleteOrderDetail = async (req, res) => {
       }
 };
 
-
 module.exports = {
       getData,
       createOrderDetail,
       updateOrderDetail,
-      deleteOrderDetail
+      deleteOrderDetail,
 };
