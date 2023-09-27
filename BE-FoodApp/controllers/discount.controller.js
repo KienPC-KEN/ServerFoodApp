@@ -1,4 +1,5 @@
 const discount = require('../model/discount.model');
+const moment = require('moment');
 
 //[GET]
 const getDiscount = async (req, res) => {
@@ -17,11 +18,16 @@ const getDiscount = async (req, res) => {
 //[POST]
 const createDiscount = async (req, res) => {
       try {
-            if(!req.body) {
+            if (!req.body) {
                   res.status(404).json('Dữ liệu không được để trống');
             } else {
-                  const newDiscount = await discount({ ...req.body}).save();
-                  res.status(200).json(newDiscount);
+                  if (moment(req.body.dateEnd).isValid()) {
+                        const dateEnd = moment(req.body.dateEnd).format('L');
+                        const newDiscount = await discount({ ...req.body, dateEnd }).save();
+                        res.status(200).json(newDiscount);
+                  } else {
+                        res.status(404).json('Date không hợp lệ');
+                  }
             }
       } catch (error) {
             res.status(500).json(error);
