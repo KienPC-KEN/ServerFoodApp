@@ -18,8 +18,15 @@ const updateDiscount = async (req, res) => {
       } catch (error) {}
 };
 
+//[DEL]
+const deleteDiscount = async (req, res) => {
+      try {
+      } catch (error) {}
+};
+
 module.exports = {
       getDiscount,
       createDiscount,
-      updateDiscount
+      updateDiscount,
+      deleteDiscount,
 };
