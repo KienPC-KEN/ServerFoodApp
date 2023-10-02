@@ -1,6 +1,15 @@
 const mdUser = require('../model/user.model');
 const mdStaff = require('../model/staff.model');
 
+const { initializeApp } = require("firebase/app");
+const { getAuth, createUserWithEmailAndPassword, deleteUser } = require("firebase/auth");
+const firebaseConfig = require("../config/firebase.config");
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app); // Khởi tạo Firebase Authentication SDK
+
+
 exports.getData = async (req, res) => {
     let listUser = await mdUser.find();
     let listStaff = await mdStaff.find();
@@ -55,33 +64,41 @@ exports.addData = async (req, res) => {
             return res.status(400).json({ status: 1, message: 'Mỗi số điện thoại chỉ được đăng ký 1 lần' })
         }
 
-        // Tạo một người dùng với thông tin chung và loại tài khoản (accType) là Staff
-        const newUser = new mdUser({
-            name,
-            phone,
-            password,
-            date,
-            sex,
-            image,
-            email,
-            address,
-            accType: 'Staff',
-        });
-        // Tạo một nhân viên với vai trò là admin
-        const newStaff = new mdStaff({
-            role: 'admin',
-            idUser: newUser._id
-        });
-        await newStaff.save();
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
 
-        // Gán ID người dùng cho Staff
+        // Check if the user was created successfully
+        if (user) {
+            // Tạo một người dùng với thông tin chung và loại tài khoản (accType) là Staff
+            const newUser = new mdUser({
+                name,
+                phone,
+                password,
+                date,
+                sex,
+                image,
+                email,
+                address,
+                accType: 'Staff',
+            });
+            // Tạo một nhân viên với vai trò là admin
+            const newStaff = new mdStaff({
+                role: 'admin',
+                idUser: newUser._id
+            });
+            await newStaff.save();
 
-        const result = await newUser.save();
+            // Gán ID người dùng cho Staff
 
-        res.status(201).json({ message: 'Staff created successfully', data: result });
+            const result = await newUser.save();
+
+            res.status(201).json({ message: 'Staff created successfully', data: result });
+        }
+
+
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Lỗi máy chủ nội bộ' });
+        res.status(500).json({ error: 'Thêm thất bại' });
     }
 };
 
@@ -149,6 +166,17 @@ exports.deleteData = async (req, res) => {
         const resultStaff = await mdStaff.findOneAndDelete({ idUser: _id });
         if (!resultStaff) {
             return res.status(404).json({ error: "Danh mục không tồn tại" });
+        }
+        // Xóa tài khoản người dùng từ Firebase Authentication
+        const user = auth.currentUser;
+        if (user) {
+            deleteUser(user)
+                .then(() => {
+                    console.log("Xóa tài khoản Firebase thành công");
+                })
+                .catch((error) => {
+                    console.error("Lỗi khi xóa tài khoản Firebase:", error);
+                });
         }
 
         res.status(200).json({ message: 'Xóa thông tin người dùng và nhân viên thành công', data: { user: resultUser, staff: resultStaff } });

@@ -1,5 +1,13 @@
 const mdUser = require('../model/user.model');
 const mdCustomer = require('../model/customer.model');
+const { initializeApp } = require("firebase/app");
+const { getAuth, createUserWithEmailAndPassword, deleteUser } = require("firebase/auth");
+const firebaseConfig = require("../config/firebase.config");
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app); // Khởi tạo Firebase Authentication SDK
+
 
 exports.getData = async (req, res) => {
     let listUser = await mdUser.find();
@@ -32,55 +40,59 @@ exports.getData = async (req, res) => {
     }
 }
 
-exports.addData = async (req, res) => {
-    try {
-        const { name, phone, password, date, sex, image, email, address } = req.body;
-        const phoneNumberRegex = /^[0-9]{10}$/;
-        const emailRegex = /^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z]{2,}$/;
+// exports.addData = async (req, res) => {
+//     try {
+//         const { name, phone, password, date, sex, image, email, address } = req.body;
+//         const phoneNumberRegex = /^[0-9]{10}$/;
+//         const emailRegex = /^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z]{2,}$/;
 
-        if (!name || !phone || !password || !date || !sex || !image || !email || !address) {
-            return res.status(400).json({ status: 0, message: 'Dữ liệu không hợp lệ' });
-        } else if (isNaN(phone)) {
-            return res.status(400).json({ status: 0, message: 'Số điện thoại phải là số.' });
-        } else if (!phoneNumberRegex.test(phone)) {
-            return res.status(400).json({ status: 0, message: 'Số điện thoại sai định dạng.' });
-        } else if (!emailRegex.test(email)) {
-            return res.status(400).json({ status: 0, message: 'Email sai định dạng.' });
-        }
+//         if (!name || !phone || !password || !date || !sex || !image || !email || !address) {
+//             return res.status(400).json({ status: 0, message: 'Dữ liệu không hợp lệ' });
+//         } else if (isNaN(phone)) {
+//             return res.status(400).json({ status: 0, message: 'Số điện thoại phải là số.' });
+//         } else if (!phoneNumberRegex.test(phone)) {
+//             return res.status(400).json({ status: 0, message: 'Số điện thoại sai định dạng.' });
+//         } else if (!emailRegex.test(email)) {
+//             return res.status(400).json({ status: 0, message: 'Email sai định dạng.' });
+//         }
 
-        const validatePhone = await mdUser.findOne({ phone });
-        if (validatePhone) {
-            return res.status(400).json({ status: 1, message: 'Mỗi số điện thoại chỉ được đăng ký 1 lần' })
-        }
+//         const validatePhone = await mdUser.findOne({ phone });
+//         if (validatePhone) {
+//             return res.status(400).json({ status: 1, message: 'Mỗi số điện thoại chỉ được đăng ký 1 lần' })
+//         }
+//         const validateEmail = await mdUser.findOne({ email });
+//         if (validateEmail) {
+//             return res.status(400).json({ status: 1, message: 'Mỗi email chỉ được đăng ký 1 lần' })
+//         }
 
-        // Tạo một người dùng với thông tin chung và loại tài khoản (accType) là Customer
-        const newUser = new mdUser({
-            name,
-            phone,
-            password,
-            date,
-            sex,
-            image,
-            email,
-            address,
-            accType: 'Customer',
-        });
-        // Tạo một nhân viên với vai trò là admin
-        const newCustomer = new mdCustomer({
-            idUser: newUser._id
-        });
-        await newCustomer.save();
+//         // Tạo một người dùng với thông tin chung và loại tài khoản (accType) là Customer
+//         const newUser = new mdUser({
+//             name,
+//             phone,
+//             password,
+//             date,
+//             sex,
+//             image,
+//             email,
+//             address,
+//             accType: 'Customer',
+//         });
+//         // Tạo một nhân viên với vai trò là admin
+//         const newCustomer = new mdCustomer({
+//             idUser: newUser._id
+//         });
+//         await newCustomer.save();
 
-        // Gán ID người dùng cho Customer
+//         // Gán ID người dùng cho Customer
 
-        const result = await newUser.save();
+//         const result = await newUser.save();
 
-        res.status(201).json({ message: 'Customer created successfully', data: result });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Lỗi máy chủ nội bộ' });
-    }
-};
+//         res.status(201).json({ message: 'Customer created successfully', data: result });
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ error: 'Lỗi máy chủ nội bộ' });
+//     }
+// };
 
 exports.updateData = async (req, res) => {
     try {
@@ -135,6 +147,18 @@ exports.deleteData = async (req, res) => {
         const resultCustomer = await mdCustomer.findOneAndDelete({ idUser: _id });
         if (!resultCustomer) {
             return res.status(404).json({ error: "Danh mục không tồn tại" });
+        }
+
+        // Xóa tài khoản người dùng từ Firebase Authentication
+        const user = auth.currentUser;
+        if (user) {
+            deleteUser(user)
+                .then(() => {
+                    console.log("Xóa tài khoản Firebase thành công");
+                })
+                .catch((error) => {
+                    console.error("Lỗi khi xóa tài khoản Firebase:", error);
+                });
         }
 
         res.status(204).json({ message: 'Xóa thông tin người dùng và nhân viên thành công', data: { user: resultUser, Customer: resultCustomer } });
