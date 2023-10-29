@@ -1,17 +1,31 @@
-  const OrderItemModel = require('../model/orderitem.model');
+const OrderItemModel = require('../model/orderitem.model');
 
 exports.getAllOrderItems = async (req, res) => {
     try {
         const orderItems = await OrderItemModel.find()
-            .populate('idProduct')
+        .populate({
+          path: 'idProduct',
+          model: 'product',
+          select: 'name quantity price', // Chọn các trường bạn quan tâm
+      })
+            .populate({
+              path: 'idStaff',
+              model: 'staff',
+              select: 'name phone email address', 
+              populate: {
+                  path: 'idUser',
+                  model: 'user',
+                  select: 'name phone email address', 
+              },
+          })
             .populate({
                 path: 'idCustomer',
                 model: 'customer',
-                select: 'name phone email address', // Chọn các trường bạn muốn hiển thị từ mô hình Customer
+                select: 'name phone email address', 
                 populate: {
                     path: 'idUser',
                     model: 'user',
-                    select: 'name phone email address', // Chọn các trường bạn muốn hiển thị từ mô hình User
+                    select: 'name phone email address', 
                 },
             });
 
@@ -23,12 +37,13 @@ exports.getAllOrderItems = async (req, res) => {
 
 // Thêm một OrderItem mới
 exports.createOrderItem = async (req, res) => {
-  const { idProduct, idCustomer, quantity } = req.body;
+  const { idProduct, idCustomer,idStaff, quantity } = req.body;
 
   try {
     const newOrderItem = new OrderItemModel({
       idProduct,
       idCustomer,
+      idStaff,
       quantity,
     });
 
