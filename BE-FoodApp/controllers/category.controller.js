@@ -4,14 +4,14 @@ const Category = require("../model/category.model");
 
 const addCategory = async (req, res) => {
   try {
-      const { name } = req.body;
+      const { name, type } = req.body;
 
       // Kiểm tra xem name đã được cung cấp
-      if (!name) {
+      if (!name || !type) {
           return res.status(400).json({ error: "Tên danh mục là bắt buộc" });
       }
 
-      const newCategory = new Category({ name });
+      const newCategory = new Category({ name, type });
       const savedCategory = await newCategory.save();
       res.status(201).json(savedCategory);
   } catch (error) {
@@ -51,16 +51,16 @@ const deleteCategory = async (req, res) => {
 // Sửa danh mục theo ID
 const editCategory = async (req, res) => {
     try {
-        const { name } = req.body; // Lấy name từ phần thân yêu cầu
+        const { name, type } = req.body; // Lấy name từ phần thân yêu cầu
   
         // Trích xuất ID từ đường dẫn URL
         const { catId } = req.params;
   
-        if (!name) {
+        if (!name || !type) {
             return res.status(400).json({ error: "Vui lòng cung cấp tên danh mục mới" });
         }
   
-        const updatedCategory = await Category.findByIdAndUpdate(catId, { name }, { new: true });
+        const updatedCategory = await Category.findByIdAndUpdate(catId, { name, type }, { new: true });
         res.status(200).json(updatedCategory);
     } catch (error) {
         res.status(500).json({ error: error.message });
