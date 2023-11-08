@@ -45,11 +45,11 @@ exports.getData = async (req, res) => {
 
 exports.addData = async (req, res) => {
     try {
-        const { name, phone, password, date, sex, image, email, address } = req.body;
+        const { name, phone, password, date, sex, image, email, address, role } = req.body;
         const phoneNumberRegex = /^[0-9]{10}$/;
         const emailRegex = /^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z]{2,}$/;
 
-        if (!name || !phone || !password || !date || !sex || !image || !email || !address) {
+        if (!name || !phone || !password || !date || !sex || !image || !email || !address || !role) {
             return res.status(400).json({ status: 0, message: 'Dữ liệu không hợp lệ' });
         } else if (isNaN(phone)) {
             return res.status(400).json({ status: 0, message: 'Số điện thoại phải là số.' });
@@ -83,7 +83,7 @@ exports.addData = async (req, res) => {
             });
             // Tạo một nhân viên với vai trò là admin
             const newStaff = new mdStaff({
-                role: 'admin',
+                role: role,
                 idUser: newUser._id
             });
             await newStaff.save();
