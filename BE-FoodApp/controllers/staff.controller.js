@@ -105,12 +105,12 @@ exports.addData = async (req, res) => {
 exports.updateData = async (req, res) => {
     try {
         const { _id } = req.params
-        const { name, phone, password, date, sex, image, email, address, role } = req.body;
+        const { name, phone, date, sex, image, email, address, role } = req.body;
         const phoneNumberRegex = /^[0-9]{10}$/;
         const emailRegex = /^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z]{2,}$/;
 
 
-        if (!name || !phone || !password || !date || !sex || !image || !email || !address || !role) {
+        if (!name || !phone || !date || !sex || !image || !email || !address || !role) {
             return res.status(400).json({ status: 0, message: 'Dữ liệu không hợp lệ.' });
         } else if (isNaN(phone)) {
             return res.status(400).json({ status: 0, message: 'Số điện thoại phải là số.' });
@@ -123,7 +123,6 @@ exports.updateData = async (req, res) => {
         const userUpdateData = {
             name,
             phone,
-            password,
             date,
             sex,
             image,
