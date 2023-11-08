@@ -6,18 +6,9 @@ exports.getAllOrderItems = async (req, res) => {
         .populate({
           path: 'idProduct',
           model: 'product',
-          select: 'name quantity price', // Chọn các trường bạn quan tâm
+          select: 'name quantity price', 
       })
-            .populate({
-              path: 'idStaff',
-              model: 'staff',
-              select: 'name phone email address', 
-              populate: {
-                  path: 'idUser',
-                  model: 'user',
-                  select: 'name phone email address', 
-              },
-          })
+            
             .populate({
                 path: 'idCustomer',
                 model: 'customer',
@@ -35,21 +26,55 @@ exports.getAllOrderItems = async (req, res) => {
     }
 };
 
+exports.getOrderItemsByCustomerId = async (req, res) => {
+  const { idCustomer } = req.params;
+
+  try {
+    const orderItems = await OrderItemModel.find({ idCustomer })
+      .populate({
+        path: 'idProduct',
+        model: 'product',
+        select: 'name quantity price',
+      })
+      .populate({
+        path: 'idCustomer',
+        model: 'customer',
+        select: 'name phone email address',
+        populate: {
+          path: 'idUser',
+          model: 'user',
+          select: 'name phone email address',
+        },
+      });
+
+    res.json(orderItems);
+  } catch (error) {
+    res.status(500).json({ error: 'Không thể lấy danh sách OrderItem theo idCustomer' });
+  }
+};
+
+
+
+
+
+
+
 // Thêm một OrderItem mới
 exports.createOrderItem = async (req, res) => {
-  const { idProduct, idCustomer,idStaff, quantity } = req.body;
+  const { idProduct, idCustomer, quantity,totalPrice } = req.body;
 
   try {
     const newOrderItem = new OrderItemModel({
       idProduct,
       idCustomer,
-      idStaff,
+      totalPrice,
       quantity,
     });
 
     const savedOrderItem = await newOrderItem.save();
     res.status(201).json(savedOrderItem);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Không thể tạo OrderItem mới' });
   }
 };
@@ -57,7 +82,7 @@ exports.createOrderItem = async (req, res) => {
 // Sửa thông tin của một OrderItem
 exports.updateOrderItem = async (req, res) => {
   const { id } = req.params;
-  const { idProduct, idCustomer, quantity } = req.body;
+  const { idProduct, idCustomer, quantity,totalPrice } = req.body;
 
   try {
     const updatedOrderItem = await OrderItemModel.findByIdAndUpdate(
@@ -66,6 +91,7 @@ exports.updateOrderItem = async (req, res) => {
         idProduct,
         idCustomer,
         quantity,
+        totalPrice,
       },
       { new: true }
     );
