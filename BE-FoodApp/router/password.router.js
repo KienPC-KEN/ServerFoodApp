@@ -3,7 +3,6 @@ const router = express.Router();
 const changePassword = require('../controllers/changePassword.controller')
 
 
-router.get('/customer', changePassword.changePasswordCustomer);
-router.post('/staff', changePassword.changePasswordStaff);
+router.post('/', changePassword.changePassword);
 
 module.exports = router;
