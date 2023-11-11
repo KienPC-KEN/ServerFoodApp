@@ -20,8 +20,13 @@ const createProduct = async (req, res) => {
             if (!req.body) {
                   res.status(404).json('Dữ liệu không được để trống');
             } else {
-                  const newProduct = await product({ ...req.body }).save();
-                  res.status(200).json(newProduct);
+                  const data = await product.findOne({ name: req.body.name });
+                  if (data) {
+                        res.status(204).json('Tên sản phẩm đã tồn tại');
+                  } else {
+                        const newProduct = await product({ ...req.body }).save();
+                        res.status(201).json(newProduct);
+                  }
             }
       } catch (error) {
             res.status(500).json(error);
