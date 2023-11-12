@@ -7,9 +7,9 @@ const getData = async (req, res) => {
             const data = await orderDetail.find({}).populate({
                   path: 'idOrderItem',
                   populate: [
-                        { path: 'idProduct', model: 'product' },
+                        { path: 'idProduct', model: 'product', populate: { path: 'idDiscount', model: 'discount' } },
                         { path: 'idCustomer', model: 'customer' },
-                  ],
+                      ],
             });
             if (data.length == 0) {
                   res.status(404).json('Data is empty');
@@ -29,9 +29,9 @@ const getDataByIdCustomer = async (req, res) => {
                   .populate({
                         path: 'idOrderItem',
                         populate: [
-                              { path: 'idProduct', model: 'product' },
+                              { path: 'idProduct', model: 'product', populate: { path: 'idDiscount', model: 'discount' } },
                               { path: 'idCustomer', model: 'customer' },
-                        ],
+                            ],
                   });
             if (data.length === 0) {
                   res.status(404).json('Data not found for this idCustomer');
