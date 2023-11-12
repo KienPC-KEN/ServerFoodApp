@@ -6,7 +6,12 @@ exports.getAllOrderItems = async (req, res) => {
         .populate({
           path: 'idProduct',
           model: 'product',
-          select: 'name quantity price', 
+          select: 'name quantity image price idDiscount',
+           populate: {
+            path: 'idDiscount',
+            model: 'discount',
+            select: 'name description discountPerson dateStart dateEnd',
+        },
       })
             
             .populate({
@@ -31,11 +36,16 @@ exports.getOrderItemsByCustomerId = async (req, res) => {
 
   try {
     const orderItems = await OrderItemModel.find({ idCustomer })
-      .populate({
-        path: 'idProduct',
-        model: 'product',
-        select: 'name quantity price',
-      })
+    .populate({
+      path: 'idProduct',
+      model: 'product',
+      select: 'name quantity image price idDiscount',
+       populate: {
+        path: 'idDiscount',
+        model: 'discount',
+        select: 'name description discountPerson dateStart dateEnd',
+    },
+  })
       .populate({
         path: 'idCustomer',
         model: 'customer',
