@@ -1,11 +1,11 @@
 const orderDetail = require('../model/orderDetail.model');
+const orderItem = require('../model/orderitem.model');
 
 //[GET]
 const getData = async (req, res) => {
       try {
             const data = await orderDetail.find({}).populate({
                   path: 'idOrderItem',
-                  model: 'orderItem',
                   populate: [
                         { path: 'idProduct', model: 'product' },
                         { path: 'idCustomer', model: 'customer' },
@@ -13,6 +13,28 @@ const getData = async (req, res) => {
             });
             if (data.length == 0) {
                   res.status(404).json('Data is empty');
+            } else {
+                  res.status(200).json(data);
+            }
+      } catch (error) {
+            res.status(500).json(error);
+      }
+};
+
+const getDataByIdCustomer = async (req, res) => {
+      try {
+            const dataOrderItem = await orderItem.find({ idCustomer: req.params.customerId });
+            const data = await orderDetail
+                  .find({ idOrderItem: { $elemMatch: { $in: dataOrderItem, $exists: true } } })
+                  .populate({
+                        path: 'idOrderItem',
+                        populate: [
+                              { path: 'idProduct', model: 'product' },
+                              { path: 'idCustomer', model: 'customer' },
+                        ],
+                  });
+            if (data.length === 0) {
+                  res.status(404).json('Data not found for this idCustomer');
             } else {
                   res.status(200).json(data);
             }
@@ -64,6 +86,7 @@ const deleteOrderDetail = async (req, res) => {
 
 module.exports = {
       getData,
+      getDataByIdCustomer,
       createOrderDetail,
       updateOrderDetail,
       deleteOrderDetail,

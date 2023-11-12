@@ -4,8 +4,7 @@ const OrderItemSchema = new mongoose.Schema({
   idProduct: { type: mongoose.Schema.Types.ObjectId, ref: 'product', required: true },
   idCustomer: { type: mongoose.Schema.Types.ObjectId, ref: 'customer', required: true },
   quantity: { type: Number, required: true },
-  
-  totalPrice: { type: Number, required: true }, 
+  status: { type: String, default: 'unconfirm'}, 
   createdAt: { type: Date, default: Date.now },
 });
 
