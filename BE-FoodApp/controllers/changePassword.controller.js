@@ -37,7 +37,7 @@ exports.changePassword = async (req, res) => {
           // Update password in MongoDB
 
           userDocument.password = newPassword;
-          //await userDocument.save();
+          await userDocument.save();
 
           res.status(200).send(userDocument);
         });
