@@ -32,10 +32,10 @@ const getAllCategories = async (req, res) => {
 // Xóa một danh mục theo ID
 const deleteCategory = async (req, res) => {
     try {
-      const { categoryId } = req.params;
+      const { catId } = req.params;
   
       // Xóa danh mục theo ID và trả về thông tin danh mục đã xóa
-      const deletedCategory = await Category.findByIdAndRemove(categoryId);
+      const deletedCategory = await Category.findByIdAndRemove(catId);
   
       if (!deletedCategory) {
         return res.status(404).json({ error: "Danh mục không tồn tại" });
