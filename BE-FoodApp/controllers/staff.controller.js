@@ -20,11 +20,11 @@ exports.getData = async (req, res) => {
 
 exports.addData = async (req, res) => {
       try {
-            const { name, phone, password, date, sex, image, email, address, role } = req.body;
+            const { name, phone, password, date, sex, image, email, address } = req.body;
             const phoneNumberRegex = /^[0-9]{10}$/;
             const emailRegex = /^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z]{2,}$/;
 
-            if (!name || !phone || !password || !date || !sex || !image || !email || !address || !role) {
+            if (!name || !phone || !password || !date || !sex || !image || !email || !address) {
                   return res.status(400).json({ status: 0, message: 'Dữ liệu không hợp lệ' });
             } else if (isNaN(phone)) {
                   return res.status(400).json({ status: 0, message: 'Số điện thoại phải là số.' });
@@ -58,7 +58,6 @@ exports.addData = async (req, res) => {
                   });
                   // Tạo một nhân viên với vai trò là admin
                   const newStaff = new mdStaff({
-                        role: role,
                         idUser: newUser._id,
                   });
                   await newStaff.save();
@@ -82,7 +81,7 @@ exports.updateData = async (req, res) => {
             const phoneNumberRegex = /^[0-9]{10}$/;
             const emailRegex = /^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z]{2,}$/;
 
-            if (!name || !phone || !date || !sex || !image || !email || !address || !role) {
+            if (!name || !phone || !date || !sex || !image || !email || !address) {
                   return res.status(400).json({ status: 0, message: 'Dữ liệu không hợp lệ.' });
             } else if (isNaN(phone)) {
                   return res.status(400).json({ status: 0, message: 'Số điện thoại phải là số.' });
@@ -132,30 +131,29 @@ exports.deleteData = async (req, res) => {
       try {
             const { _id } = req.params;
 
-            const resultUser = await mdUser.findByIdAndDelete(_id);
-            if (!resultUser) {
-                  return res.status(404).json({ error: 'Danh mục không tồn tại' });
-            }
-            const resultStaff = await mdStaff.findOneAndDelete({ idUser: _id });
-            if (!resultStaff) {
-                  return res.status(404).json({ error: 'Danh mục không tồn tại' });
-            }
             // Xóa tài khoản người dùng từ Firebase Authentication
             const user = auth.currentUser;
             if (user) {
                   deleteUser(user)
-                        .then(() => {
+                        .then(async () => {
                               console.log('Xóa tài khoản Firebase thành công');
+                              const resultUser = await mdUser.findByIdAndDelete(_id);
+                              if (!resultUser) {
+                                    return res.status(404).json({ error: 'Danh mục không tồn tại' });
+                              }
+                              const resultStaff = await mdStaff.findOneAndDelete({ idUser: _id });
+                              if (!resultStaff) {
+                                    return res.status(404).json({ error: 'Danh mục không tồn tại' });
+                              }
+                              res.status(200).json({
+                                    message: 'Xóa thông tin người dùng và nhân viên thành công',
+                                    data: { user: resultUser, staff: resultStaff },
+                              });
                         })
                         .catch((error) => {
                               console.error('Lỗi khi xóa tài khoản Firebase:', error);
                         });
             }
-
-            res.status(200).json({
-                  message: 'Xóa thông tin người dùng và nhân viên thành công',
-                  data: { user: resultUser, staff: resultStaff },
-            });
       } catch (error) {
             console.error(error);
             res.status(500).json({ error: 'Lỗi máy chủ nội bộ' });

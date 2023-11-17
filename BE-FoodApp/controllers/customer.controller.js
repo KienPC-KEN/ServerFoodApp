@@ -10,30 +10,10 @@ const auth = getAuth(app); // Khởi tạo Firebase Authentication SDK
 
 
 exports.getData = async (req, res) => {
-    let listUser = await mdUser.find();
-    let listCustomer = await mdCustomer.find();
+    let listCustomer = await mdCustomer.find().populate('idUser');
 
-    listUser = listUser.filter(user => user.accType === "Customer");
-
-    const dataJson = listUser.map(user => {
-        const dataCustomer = listCustomer.filter(customer => customer.idUser.equals(user._id));
-        return {
-            data: {
-                name: user.name,
-                phone: user.phone,
-                password: user.password,
-                date: user.date,
-                sex: user.sex,
-                image: user.image,
-                email: user.email,
-                address: user.address,
-                accType: user.accType,
-                Customer: dataCustomer
-            }
-        }
-    })
-    if (dataJson.length > 0) {
-        return res.status(200).json({ dataJson, check: 'có dữ liệu' });
+    if (listCustomer.length > 0) {
+        return res.status(200).json({ listCustomer, check: 'có dữ liệu' });
     }
     else {
         return res.status(404).json({ check: 'không có dữ liệu' });
