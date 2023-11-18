@@ -77,19 +77,17 @@ exports.getData = async (req, res) => {
 exports.updateData = async (req, res) => {
     try {
         const { _id } = req.params;
-        const { name, phone, date, sex, image, email, address } = req.body;
+        const { name, phone, date, sex, image, address } = req.body;
         const phoneNumberRegex = /^[0-9]{10}$/;
         const emailRegex = /^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z]{2,}$/;
 
 
-        if (!name || !phone || !date || !sex || !image || !email || !address) {
+        if (!name || !phone || !date || !sex || !image || !address) {
             return res.status(400).json({ status: 0, message: 'Dữ liệu không hợp lệ.' });
         } else if (isNaN(phone)) {
             return res.status(400).json({ status: 0, message: 'Số điện thoại phải là số.' });
         } else if (!phoneNumberRegex.test(phone)) {
             return res.status(400).json({ status: 0, message: 'Số điện thoại sai định dạng.' });
-        } else if (!emailRegex.test(email)) {
-            return res.status(400).json({ status: 0, message: 'Email sai định dạng.' });
         }
 
         const userUpdateData = {
